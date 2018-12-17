@@ -1,0 +1,485 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+//#include <conio.h>
+
+#define num 6 //количество команд
+#define number_tour 3 //количество матчей(играют 2 команды в одном матче)
+
+int i;
+
+struct football//структура команды
+
+{
+
+  int number;//порядковый номер, для рандома
+
+  char name[25];//название
+
+  int score;//количество очков в последнем туре
+
+  int sum_score;//количество очков за все проведенные туры
+
+};
+
+struct tour
+
+  {//структура матча
+
+  struct football team_1;//команда 1
+
+  struct football team_2;//команда 2
+
+};
+
+  void tur(struct football[]);//функция подбора соперников на матч
+
+  void output(struct football[]);//вывод итогово турнирной таблицы
+
+  void sort_sum_score(struct football[]);//сортировка по количеству очков за туры
+
+  void output_tur(struct tour[], int);//вывод результатов тура
+
+  void input_score(struct football*, struct football*, int);//ввод очков за матч
+
+  void output_file(struct tour[], int);//вывод результатов турнира в файл
+
+  int main()
+
+{
+
+  int a;
+
+  struct football turnir[num];//массив команд
+
+  FILE *file;
+
+  file = fopen("C:\\team.txt", "r");
+
+if (file != NULL)
+
+{
+
+  for (i = 0; i < num; i++)//ввод названий
+
+{
+
+    fscanf(file, "%s", &turnir[i].name);
+
+    turnir[i].sum_score = 0;
+
+}
+
+}
+
+fclose(file);
+
+/*printf("\tVvedite %i komand\n\n", num);
+
+for (i = 0; i<num; i++)//ввод названий
+
+{
+
+  printf("komanda %i: ", i + 1);
+
+  scanf("%s", &turnir[i].name);
+
+  turnir[i].number = i + 1;
+
+  turnir[i].sum_score = 0;
+
+}*/
+
+do{
+
+  printf("\n Viberite deistvie:\n\n\n");
+
+  printf("1. Provedenie tura\n\n");
+
+  printf("2. Vivod sceta komand\n\n");
+
+  printf("3. Exit\n\n\n");
+
+scanf("%i", &a);
+
+switch (a)
+
+{
+
+case 1:
+
+printf("Tur!\n\n");
+
+tur(turnir);
+
+break;
+
+case 2:
+
+printf("Vivod komand\n\n");
+
+output(turnir);
+
+break;
+
+case 3:
+
+break;
+
+default:
+
+printf("\n\nERROR!!! Please enter number 1-3...\n\n");
+
+}
+
+} while (a != 3);
+
+getchar();
+
+return 0;
+
+}
+
+void tur(struct football turnir[])
+
+{
+
+int i, j, k = 0, n = 1;//вспомогательные переменные
+
+struct tour ball[number_tour];//массив матчей
+
+for (j = 1; j < 3; j++)//цикл для двух игр каждой команды (в гостях и дома)
+
+{
+
+k = 0;
+
+for (i = 0; i < num; i += 2)
+
+{
+
+input_score(&turnir[i], &turnir[i + 1], k);
+
+ball[k].team_1 = turnir[i];
+
+ball[k].team_2 = turnir[i + 1];
+
+k++;
+
+}
+
+output_tur(ball, n);
+
+}
+
+n++;
+
+for (j = 1; j < 3; j++)//цикл для двух игр каждой команды (в гостях и дома)
+
+{
+
+k = 0;
+
+for (i = 1; i < num - 1; i += 2)
+
+{
+
+input_score(&turnir[i], &turnir[i + 1], k);
+
+ball[k].team_1 = turnir[i];
+
+ball[k].team_2 = turnir[i + 1];
+
+k++;
+
+}
+
+input_score(&turnir[0], &turnir[num - 1], k);
+
+ball[k].team_1 = turnir[0];
+
+ball[k].team_2 = turnir[num - 1];
+
+output_tur(ball, n);
+
+}
+
+n++;
+
+for (j = 1; j < 3; j++)//цикл для двух игр каждой команды (в гостях и дома)
+
+{
+
+k = 0;
+
+for (i = 0; i < num - 1; i += 3)
+
+{
+
+input_score(&turnir[i], &turnir[i + 2], k);
+
+ball[k].team_1 = turnir[i];
+
+ball[k].team_2 = turnir[i + 2];
+
+k++;
+
+}
+
+input_score(&turnir[1], &turnir[num - 2], k);
+
+ball[k].team_1 = turnir[1];
+
+ball[k].team_2 = turnir[num - 2];
+
+output_tur(ball, n);
+
+}
+
+n++;
+
+for (j = 1; j < 3; j++)//цикл для двух игр каждой команды (в гостях и дома)
+
+{
+
+k = 0;
+
+input_score(&turnir[0], &turnir[3], k);
+
+ball[k].team_1 = turnir[0];
+
+ball[k].team_2 = turnir[3];
+
+k++;
+
+input_score(&turnir[2], &turnir[4], k);
+
+ball[k].team_1 = turnir[2];
+
+ball[k].team_2 = turnir[4];
+
+k++;
+
+input_score(&turnir[1], &turnir[5], k);
+
+ball[k].team_1 = turnir[1];
+
+ball[k].team_2 = turnir[5];
+
+output_tur(ball, n);
+
+}
+
+n++;
+
+for (j = 1; j < 3; j++)//цикл для двух игр каждой команды (в гостях и дома)
+
+{
+
+k = 0;
+
+input_score(&turnir[0], &turnir[4], k);
+
+ball[k].team_1 = turnir[0];
+
+ball[k].team_2 = turnir[4];
+
+k++;
+
+input_score(&turnir[2], &turnir[5], k);
+
+ball[k].team_1 = turnir[2];
+
+ball[k].team_2 = turnir[5];
+
+k++;
+
+input_score(&turnir[1], &turnir[3], k);
+
+ball[k].team_1 = turnir[1];
+
+ball[k].team_2 = turnir[3];
+
+output_tur(ball, n);
+
+}
+
+}
+
+void input_score(struct football* team1, struct football* team2, int i)
+
+{
+
+printf("Igra %i\n", i+1);
+
+printf("Komanda %s: ", team1->name);
+
+scanf("%i", &team1->score);
+
+//team1->sum_score += team1->score;
+
+printf("Komanda %s: ", team2->name);
+
+scanf("%i", &team2->score);
+
+//team2->sum_score += team2->score;
+
+if (team1->score > team2->score)
+
+{
+
+team1->sum_score += 3;
+
+team2->sum_score += 0;
+
+}
+
+else if (team1->score == team2->score)
+
+{
+
+team1->sum_score += 1;
+
+team2->sum_score += 1;
+
+}
+
+else
+
+{
+
+team1->sum_score += 0;
+
+team2->sum_score += 3;
+
+}
+
+}
+
+void output_file(struct tour ball[number_tour], int n)
+
+{
+
+int i;
+
+FILE *file;
+
+file = fopen("C:\\futbol.txt", "a");
+
+if (file != NULL)
+
+{
+
+fprintf(file, "\n%i\n", n);
+
+for (i = 0; i < number_tour; i++)
+
+{
+
+fprintf(file,"\t %s - %s \n\t %i : %i summa %i : %i\n\n", ball[i].team_1.name, ball[i].team_2.name,
+
+ball[i].team_1.score, ball[i].team_2.score,
+
+ball[i].team_1.sum_score, ball[i].team_2.sum_score);
+
+}
+
+fprintf(file, "\n\n");
+
+}
+
+fclose(file);
+
+}
+
+void output_tur(struct tour ball[number_tour], int n)
+
+{
+
+printf("\n Itogi turnira %i\n\n", n);//вывод итогов матчей
+
+for (i = 0; i<number_tour; i++)
+
+printf("\t %s - %s \t %i : %i\n\n", ball[i].team_1.name, ball[i].team_2.name,
+
+ball[i].team_1.score, ball[i].team_2.score);
+
+output_file(ball, n);
+
+}
+
+void output(struct football team[])//вывод команд в соответсвии с набранными очками
+
+{
+
+sort_sum_score(team);//сортировка по количеству набранных очков
+
+system("cls");
+
+printf("\tItogovay talblica\n\n");
+
+for (i = 0; i<num; i++)
+
+{
+
+printf("%i - %s\n", team[i].sum_score, team[i].name);
+
+}
+
+}
+
+void sort_sum_score(struct football team[])//сортировка по убыванию методом "шейкера"
+
+{
+
+struct football R;
+
+int leftMark = 1;
+
+int rightMark = num - 1;
+
+while (leftMark <= rightMark)
+
+{
+
+for (i = rightMark; i >= leftMark; i--)
+
+if (team[i - 1].sum_score < team[i].sum_score)
+
+{
+
+R = team[i];
+
+team[i] = team[i - 1];
+
+team[i - 1] = R;
+
+}
+
+leftMark++;
+
+for (i = leftMark; i <= rightMark; i++)
+
+if (team[i - 1].sum_score <
+
+team[i].sum_score)
+
+{
+
+R = team[i];
+
+team[i] = team[i - 1];
+
+team[i - 1] = R;
+
+}
+
+rightMark--;
+
+}
+
+}
